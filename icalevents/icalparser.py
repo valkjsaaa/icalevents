@@ -174,7 +174,7 @@ def create_event(component, tz=UTC):
     return event
 
 
-def normalize(dt, tz=UTC):
+def normalize(dt, tz=UTC, replace=False):
     """
     Convert date or datetime to datetime with timezone.
 
@@ -191,8 +191,10 @@ def normalize(dt, tz=UTC):
 
     if dt.tzinfo:
         # Per https://github.com/irgangla/icalevents/issues/12#issuecomment-456121570
-        pass
-        #dt = dt.astimezone(tz)
+        if replace:
+            dt = dt.astimezone(tz)
+        else:
+            pass
     else:
         dt = dt.replace(tzinfo=tz)
 
@@ -342,7 +344,7 @@ def parse_rrule(component, tz=UTC):
                     until[idx] = normalize(normalize(dt, tz=tz), tz=UTC)
 
         # Parse the rrules, might return a rruleset instance, instead of rrule
-        rule = rrulestr('\n'.join(x.to_ical().decode() for x in rrules), dtstart=normalize(component['dtstart'].dt, tz=tz))
+        rule = rrulestr('\n'.join(x.to_ical().decode() for x in rrules), dtstart=normalize(component['dtstart'].dt, tz=tz, replace=True))
         
         if component.get('exdate'):
             # Make sure, to work with a rruleset
